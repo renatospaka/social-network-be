@@ -1,11 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const feedRoutes = require('./routes/feed');
 
 const app = express();
-//app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form></form>
 app.use(bodyParser.json());        //application/json
+//app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form></form>
 
 //setup CORS
 app.use((req, res, next) => {
@@ -14,5 +15,16 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();
 }) 
+
+//main route
 app.use('/feed', feedRoutes);
-app.listen(8080);
+
+//database access
+require('dotenv').config()
+const uri = process.env.MONGODB_URI;
+mongoose.connect(uri, { useNewUrlParser:true, useUnifiedTopology: true })
+  .then(result => {
+    app.listen(8080);
+  })
+  .catch(err => console.log(err))
+
