@@ -3,7 +3,11 @@ const { body } =  require('express-validator');
 const feedController = require('../controllers/feed');
 
 const router = express.Router();
-router.get('/posts', feedController.getPosts);    //GET /feed/posts
+
+//GET /feed/posts
+router.get('/posts', feedController.getPosts);    
+
+//POST /feed/post
 router.post(
   '/post', 
   [
@@ -11,6 +15,9 @@ router.post(
     body('content').trim().isLength({min: 5})
   ], 
   feedController.createPost
-);  //POST /feed/post
+);  
+
+//GET /feed/post
+router.get('/post/:postId', feedController.getPost);
 
 module.exports = router;
