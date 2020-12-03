@@ -2,7 +2,16 @@ exports.getPosts = (req, res, next) => {
   res
     .status(200)
     .json({
-      posts: [{ title: 'Firs Post', content: 'This is the 1st post!!' }]
+      posts: [{ 
+        _id: '1',
+        title: 'Firs Post', 
+        content: 'This is the 1st post!!', 
+        imageUrl: '../images/PatoBorracha.jpg',
+        creator: {
+          name: "Renatão, o bacana"
+        },
+        createdAt: new Date()
+      }]
     });
 };
 
