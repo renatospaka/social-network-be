@@ -25,12 +25,18 @@ exports.createPost = (req, res, next) => {
     error.statusCode = 422; // this is an arbitrary named variable
     throw error;
   }
+  if (!req.file) {
+    const error = new Error('Image not informed.');
+    error.statusCode = 422; // this is an arbitrary named variable
+    throw error;
+  }
   const title = req.body.title;
   const content = req.body.content;
+  const imageUrl = req.file.path;
   const post = new Post({
     title: title, 
     content: content,
-    imageUrl: '../images/PatoBorracha.jpg',
+    imageUrl: imageUrl,
     creator: {
       name: 'Renato, o bonzão'
     },
