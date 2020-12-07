@@ -124,8 +124,38 @@ exports.updatePost = (req, res, next) => {
         err.statusCode = 500;
       };
       next(err);
+    });
+};
+
+exports.deletePost = (req, res, next) => {
+  const postId = req.params.postId;
+  Post
+    .findById(postId)
+    .then(post => {
+      if (!post) {
+        const error = new Error('Post does not exist.');
+        error.statusCode = 404; // this is an arbitrary named variable
+        throw error;
+      }
+
+      // check if is logged user
+
+      clearImage(post.imageUrl);
+      return Post.findByIdAndRemove(postId);
     })
-}
+    .then(post => {
+      console.log(post);
+      res
+        .status(200)
+        .json({ message: 'Post deleted successfully.' });
+    })
+    .catch(err => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      };
+      next(err);
+    });
+};
 
 const clearImage= filePath => {
   filePath = path.join(__dirname, '..', filePath);
