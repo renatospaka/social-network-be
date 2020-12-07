@@ -1,8 +1,12 @@
 const { validationResult } = require('express-validator');
+const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
 
 exports.signup = (req, res, next) => {
+  console.log(req.body.name);
+  console.log(req.body.password);
+  console.log(req.body.email);
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const error = new Error('Validation failed.')
@@ -13,4 +17,25 @@ exports.signup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   const name = req.body.name;
+  bcrypt
+    .hash(password, 12)
+    .then(hashPassword => {
+      const user = new User({
+        email: email,
+        password: hashPassword,
+        name: name
+      });
+      return user.save();
+    })
+    .then(newUser => {
+      res
+      .status(201)
+      .json({ message: 'User created successfully.', userId: newUser._id });
+    })
+    .catch(err => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      };
+      next(err);
+    });
 }
