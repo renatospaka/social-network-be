@@ -41,8 +41,6 @@ exports.signup = (req, res, next) => {
 exports.login = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
-  console.log('controller', req.body.password);
-  console.log('controller', req.body.email);
   let loadedUser;
   User.findOne({ email: email })
     .then(user => {
@@ -67,7 +65,7 @@ exports.login = (req, res, next) => {
         {
           email: loadedUser.email, 
           userId: loadedUser._id.toString()
-        }, 
+        },
         'someSuperHugeSecretFromHeaven', 
         { expiresIn: '1h' }
       );
