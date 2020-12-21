@@ -129,6 +129,11 @@ exports.updatePost = (req, res, next) => {
         error.statusCode = 404; // this is an arbitrary named variable
         throw error;
       }
+      if (post.creator.toString() !== req.userId) {
+        const error = new Error('You are not authorized.');
+        error.statusCode = 403;
+        throw error;
+      }
       if (imageUrl !== post.imageUrl) {
         clearImage(post.imageUrl);
       }
@@ -160,14 +165,23 @@ exports.deletePost = (req, res, next) => {
         error.statusCode = 404; // this is an arbitrary named variable
         throw error;
       }
-
-      // check if is logged user
-
+      if (post.creator.toString() !== req.userId) {
+        const error = new Error('You are not authorized.');
+        error.statusCode = 403;
+        throw error;
+      }
       clearImage(post.imageUrl);
       return Post.findByIdAndRemove(postId);
     })
     .then(post => {
-      console.log(post);
+      return User.findById(req.userId);
+    })
+    .then(user => {
+      //clean relations of the products from the user document
+      user.posts.pull(postId);
+      return user.save();
+    })
+    .then(result => {
       res
         .status(200)
         .json({ message: 'Post deleted successfully.' });
