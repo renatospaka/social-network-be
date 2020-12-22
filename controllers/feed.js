@@ -129,11 +129,7 @@ exports.updatePost = (req, res, next) => {
         error.statusCode = 404; // this is an arbitrary named variable
         throw error;
       }
-<<<<<<< HEAD
-      if (post.creator.toString() === req.userId) {
-=======
       if (post.creator.toString() !== req.userId) {
->>>>>>> 7b7cd907f788ae471c675e5591e8923fabe2dbc0
         const error = new Error('You are not authorized.');
         error.statusCode = 403;
         throw error;
@@ -174,25 +170,10 @@ exports.deletePost = (req, res, next) => {
         error.statusCode = 403;
         throw error;
       }
-<<<<<<< HEAD
-
-=======
->>>>>>> 7b7cd907f788ae471c675e5591e8923fabe2dbc0
       clearImage(post.imageUrl);
       return Post.findByIdAndRemove(postId);
     })
     .then(post => {
-<<<<<<< HEAD
-      //search for then postId in the user's document 
-      return User.findById(req.userId);
-    })
-    .then(user => {
-      //remove the postId from the user's document.
-      user.posts.pull(postId);
-      return user.save();
-    })
-    .then(post => {
-=======
       return User.findById(req.userId);
     })
     .then(user => {
@@ -201,7 +182,6 @@ exports.deletePost = (req, res, next) => {
       return user.save();
     })
     .then(result => {
->>>>>>> 7b7cd907f788ae471c675e5591e8923fabe2dbc0
       res
         .status(200)
         .json({ message: 'Post deleted successfully.' });
