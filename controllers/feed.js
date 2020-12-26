@@ -12,14 +12,12 @@ exports.getPosts = async (req, res, next) => {
   try {
     const totalItems = await Post.find().countDocuments();
     const posts = await Post.find()
+      .populate('creator')
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
 
     res.status(200)
-      .json({ 
-        message: 'Fetched posts successfully.', 
-        posts: posts, totalItems: totalItems 
-      });
+      .json({ message: 'Fetched posts successfully.', posts: posts, totalItems: totalItems });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -57,11 +55,7 @@ exports.createPost = async (req, res, next) => {
     await user.save();
 
     res.status(201)
-      .json({ 
-        message: 'Post created successfully', 
-        post: post,
-        creator: { _id: user._id, name: user.name }
-      }); 
+      .json({ message: 'Post created successfully', post: post, creator: { _id: user._id, name: user.name }}); 
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -80,8 +74,7 @@ exports.getPost = async (req, res, next) => {
       throw error;
     }
 
-    res.status(200)
-      .json({ message: 'Post fetched', post: post });
+    res.status(200).json({ message: 'Post fetched', post: post });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -131,8 +124,7 @@ exports.updatePost = async (req, res, next) => {
     post.imageUrl = imageUrl;
     const updPost = await post.save();
 
-    res.status(200)
-      .json({ message: 'Post updated successfully.', post: updPost });
+    res.status(200).json({ message: 'Post updated successfully.', post: updPost });
   } catch (error) {
     if (!err.statusCode) {
       err.statusCode = 500;
