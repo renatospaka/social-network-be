@@ -59,7 +59,16 @@ require('dotenv').config()
 const uri = process.env.MONGODB_URI;
 mongoose.connect(uri, { useNewUrlParser:true, useUnifiedTopology: true })
   .then(result => {
-    app.listen(8091);
+    const server = app.listen(8091);
+    const io = require('socket.io')(server, {
+      cors: {
+          origin: "http://localhost:3000",
+          methods: ["GET", "POST"]
+      }
+    });
+    io.on('connection', socket => {
+      console.log('Client connected.')
+    })
   })
   .catch(err => console.log(err))
 
