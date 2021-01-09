@@ -14,6 +14,7 @@ exports.getPosts = async (req, res, next) => {
     const totalItems = await Post.find().countDocuments();
     const posts = await Post.find()
       .populate('creator')
+      .sort({createAt: -1})
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
 
@@ -54,7 +55,13 @@ exports.createPost = async (req, res, next) => {
     const user = await User.findById(req.userId);
     user.posts.push(post);
     await user.save();
-    io.getIO().emit('newPost', { action: 'create', post: post })
+    io.getIO().emit('newPost', {
+      action: 'create', 
+      post: {
+        ...post._doc, 
+        creator: {_id: req.userId, name: user.name }
+      } 
+    });
     res.status(201)
       .json({ message: 'Post created successfully', post: post, creator: { _id: user._id, name: user.name }}); 
   } catch (err) {
@@ -105,13 +112,13 @@ exports.updatePost = async (req, res, next) => {
   }
 
   try {
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate('creator');
     if (!post) {
       const error = new Error('Post does not exist.');
       error.statusCode = 404; // this is an arbitrary named variable
       throw error;
     }
-    if (post.creator.toString() !== req.userId) {
+    if (post.creator._id.toString() !== req.userId) {
       const error = new Error('You are not authorized.');
       error.statusCode = 403;
       throw error;
@@ -124,6 +131,7 @@ exports.updatePost = async (req, res, next) => {
     post.content = content;
     post.imageUrl = imageUrl;
     const updPost = await post.save();
+    io.getIO().emit('newPost', { action: 'update', post: updPost });
 
     res.status(200).json({ message: 'Post updated successfully.', post: updPost });
   } catch (error) {
@@ -154,6 +162,7 @@ exports.deletePost = async (req, res, next) => {
     const user = await User.findById(req.userId);
     user.posts.pull(postId);
     await user.save();
+    io.getIO().emit('newPost', { action: 'delete', post: postId });
 
     res.status(200).json({ message: 'Post deleted successfully.' });
   } catch (err) {
